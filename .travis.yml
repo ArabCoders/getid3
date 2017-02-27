@@ -1,0 +1,25 @@
+language: php
+
+sudo: false
+
+cache:
+  directories:
+    - $HOME/.composer/cache/files
+
+matrix:
+    include:
+        - php: 7.0
+        - php: 7.1
+        - php: nightly
+    allow_failures:
+        - php: nightly
+    fast_finish: true
+
+before_install:
+    - composer self-update
+
+install:
+    - composer --prefer-dist -o install
+
+script:
+    - phpunit --configuration phpunit.xml.dist
