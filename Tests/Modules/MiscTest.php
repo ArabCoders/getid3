@@ -58,7 +58,7 @@ class MiscTest extends TestCase
         $this->assertArrayHasKey( 'encoding', $properties );
         $this->assertEquals( 'UTF-8', $properties['encoding'] );
         $this->assertArrayHasKey( 'filesize', $properties );
-        $this->assertSame( 330, $properties['filesize'] );
+        $this->assertSame( 314, $properties['filesize'] );
         $this->assertArrayHasKey( 'fileformat', $properties );
         $this->assertEquals( 'cue', $properties['fileformat'] );
         $this->assertArrayHasKey( 'cue', $properties );
