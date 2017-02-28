@@ -15,9 +15,6 @@ matrix:
         - php: nightly
     fast_finish: true
 
-before_install:
-    - composer self-update
-
 install:
     - composer --prefer-dist -o install
 
