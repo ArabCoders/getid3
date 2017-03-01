@@ -4,6 +4,7 @@ namespace arabcoders\getid3\Module\Misc;
 
 use arabcoders\getid3\Handler\BaseHandler;
 use arabcoders\getid3\Lib\Helper;
+use arabcoders\getid3\Interfaces\ModuleInterface;
 
 /////////////////////////////////////////////////////////////////
 /// GetId3() by James Heinrich <info@getid3.org>               //
@@ -27,7 +28,7 @@ use arabcoders\getid3\Lib\Helper;
  * @link   http://getid3.sourceforge.net
  * @link   http://www.getid3.org
  */
-class Msoffice extends BaseHandler
+class Msoffice extends BaseHandler implements ModuleInterface
 {
     /**
      * @return bool

@@ -4,6 +4,7 @@ namespace arabcoders\getid3\Write;
 
 use arabcoders\getid3\Exception\DefaultException;
 use arabcoders\getid3\GetId3Core;
+use arabcoders\getid3\Interfaces\WriterInterface;
 use arabcoders\getid3\Lib\Helper;
 use arabcoders\getid3\Module\Tag;
 
@@ -70,7 +71,7 @@ use arabcoders\getid3\Module\Tag;
  * @uses   \arabcoders\getid3\Write\Metaflac (optional)
  * @uses   \arabcoders\getid3\Write\Lyrics3 (optional)
  */
-class Tags
+class Tags implements WriterInterface
 {
     // public
     public $filename;                            // absolute filename of file to write tags to

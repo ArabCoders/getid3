@@ -6,6 +6,7 @@ use arabcoders\getid3\GetId3Core;
 use arabcoders\getid3\Handler\BaseHandler;
 use arabcoders\getid3\Lib\Helper;
 use arabcoders\getid3\Module\Audio\Mp3;
+use arabcoders\getid3\Interfaces\ModuleInterface;
 
 /////////////////////////////////////////////////////////////////
 /// GetId3() by James Heinrich <info@getid3.org>               //
@@ -31,7 +32,7 @@ use arabcoders\getid3\Module\Audio\Mp3;
  *
  * @uses   \arabcoders\getid3\Module\Audio_Mp3
  */
-class Mpeg extends BaseHandler
+class Mpeg extends BaseHandler implements ModuleInterface
 {
     const GETID3_MPEG_VIDEO_PICTURE_START   = "\x00\x00\x01\x00";
     const GETID3_MPEG_VIDEO_USER_DATA_START = "\x00\x00\x01\xB2";

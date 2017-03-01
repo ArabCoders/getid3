@@ -5,6 +5,7 @@ namespace arabcoders\getid3\Module\Tag;
 use arabcoders\getid3\GetId3Core;
 use arabcoders\getid3\Handler\BaseHandler;
 use arabcoders\getid3\Lib\Helper;
+use arabcoders\getid3\Interfaces\ModuleInterface;
 
 /////////////////////////////////////////////////////////////////
 /// GetId3() by James Heinrich <info@getid3.org>               //
@@ -30,7 +31,7 @@ use arabcoders\getid3\Lib\Helper;
  *
  * @uses   arabcoders\getid3\Module\Tag\Apetag
  */
-class Lyrics3 extends BaseHandler
+class Lyrics3 extends BaseHandler implements ModuleInterface
 {
     /**
      * @return bool

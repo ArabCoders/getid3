@@ -3,6 +3,7 @@
 namespace arabcoders\getid3\Write;
 
 use arabcoders\getid3\GetId3Core;
+use arabcoders\getid3\Interfaces\WriterInterface;
 use arabcoders\getid3\Lib\Helper;
 
 /////////////////////////////////////////////////////////////////
@@ -27,7 +28,7 @@ use arabcoders\getid3\Lib\Helper;
  * @link   http://getid3.sourceforge.net
  * @link   http://www.getid3.org
  */
-class Real
+class Real implements WriterInterface
 {
     /**
      * @var string

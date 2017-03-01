@@ -7,6 +7,7 @@ use arabcoders\getid3\GetId3Core;
 use arabcoders\getid3\Handler\BaseHandler;
 use arabcoders\getid3\Lib\Helper;
 use arabcoders\getid3\Module\Audio\Ogg;
+use arabcoders\getid3\Interfaces\ModuleInterface;
 
 /////////////////////////////////////////////////////////////////
 /// GetId3() by James Heinrich <info@getid3.org>               //
@@ -31,7 +32,7 @@ use arabcoders\getid3\Module\Audio\Ogg;
  * @link   http://www.getid3.org
  * @link   http://www.matroska.org/technical/specs/index.html
  */
-class Matroska extends BaseHandler
+class Matroska extends BaseHandler implements ModuleInterface
 {
     const EBML_ID_CHAPTERS                   = 0x0043A770; // [10][43][A7][70] -- A system to define basic menus and partition data. For more detailed information, look at the Chapters Explanation.
     const EBML_ID_SEEKHEAD                   = 0x014D9B74; // [11][4D][9B][74] -- Contains the position of other level 1 elements.

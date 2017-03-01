@@ -3,6 +3,7 @@
 namespace arabcoders\getid3\Write;
 
 use arabcoders\getid3\GetId3Core;
+use arabcoders\getid3\Interfaces\WriterInterface;
 use arabcoders\getid3\Lib\Helper;
 
 /////////////////////////////////////////////////////////////////
@@ -27,9 +28,9 @@ use arabcoders\getid3\Lib\Helper;
  * @link   http://getid3.sourceforge.net
  * @link   http://www.getid3.org
  *
- * @uses   GetId3\Module\Tag\Apetag
+ * @uses \arabcoders\getid3\Module\Tag\Apetag
  */
-class Apetag
+class Apetag implements WriterInterface
 {
     public $filename;
     public $tag_data;
@@ -219,10 +220,10 @@ class Apetag
     }
 
     /**
-     * @param  type $items
-     * @param  type $isheader
+     * @param array $items
+     * @param bool  $isheader
      *
-     * @return type
+     * @return string type
      */
     public function GenerateAPEtagHeaderFooter( &$items, $isheader = false )
     {
@@ -243,25 +244,28 @@ class Apetag
     }
 
     /**
-     * @param  type $header
-     * @param  type $footer
-     * @param  type $isheader
-     * @param  type $encodingid
-     * @param  type $readonly
+     * @param bool $header
+     * @param bool $footer
+     * @param bool $isheader
+     * @param int  $encodingid
+     * @param bool $readonly
      *
-     * @return type
+     * @return string type
      */
     public function GenerateAPEtagFlags( $header = true, $footer = true, $isheader = false, $encodingid = 0, $readonly = false )
     {
         $APEtagFlags = array_fill( 0, 4, 0 );
+
         if ( $header )
         {
             $APEtagFlags[0] |= 0x80; // Tag contains a header
         }
+
         if ( !$footer )
         {
             $APEtagFlags[0] |= 0x40; // Tag contains no footer
         }
+
         if ( $isheader )
         {
             $APEtagFlags[0] |= 0x20; // This is the header, not the footer
@@ -282,9 +286,9 @@ class Apetag
     }
 
     /**
-     * @param  type $itemkey
+     * @param  string $itemkey type
      *
-     * @return type
+     * @return string type
      */
     public function CleanAPEtagItemKey( $itemkey )
     {
@@ -299,7 +303,6 @@ class Apetag
             case 'ISRC':
                 $itemkey = strtoupper( $itemkey );
                 break;
-
             default:
                 $itemkey = ucwords( $itemkey );
                 break;

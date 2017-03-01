@@ -1,43 +1,41 @@
 <?php
-
+/**
+ * This file is part of ( \arabcoders\getid3 ) project.
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ *
+ * getID3 original code Was written by James Heinrich <info@getid3.org>.
+ * Code was converted to classes by Javier Spagnoletti <jspagnoletti@javierspagnoletti.com.ar>
+ * Code was reorganized and updated by Abdulmohsen Almansour <admin@arabcoders.org>
+ */
 namespace arabcoders\getid3\Lib;
 
 use arabcoders\getid3\Exception\DefaultException;
 use arabcoders\getid3\GetId3Core;
 
-/////////////////////////////////////////////////////////////////
-/// GetId3() by James Heinrich <info@getid3.org>               //
-//  available at http://getid3.sourceforge.net                 //
-//            or http://www.getid3.org                         //
-/////////////////////////////////////////////////////////////////
-//                                                             //
-// GetId3.lib.php - part of GetId3()                           //
-// See readme.txt for more details                             //
-//                                                            ///
-/////////////////////////////////////////////////////////////////
-
 /**
- * module for analyzing Ogg Vorbis, OggFLAC and Speex files
+ * Class Helper
  *
- * @author James Heinrich <info@getid3.org>
- *
- * @link   http://getid3.sourceforge.net
- * @link   http://www.getid3.org
+ * @package arabcoders\getid3\Lib
  */
 class Helper
 {
+
+    static public $hasINT64 = null;
+
     /**
-     * @param  type   $string
-     * @param  type   $hex
-     * @param  type   $spaces
-     * @param  string $htmlencoding
+     * @param string $string
+     * @param bool   $hex
+     * @param bool   $spaces
+     * @param string $htmlencoding
      *
-     * @return type
+     * @return string type
      */
-    public static function PrintHexBytes( $string, $hex = true, $spaces = true,
-                                          $htmlencoding = 'UTF-8' )
+    public static function PrintHexBytes( $string, $hex = true, $spaces = true, $htmlencoding = 'UTF-8' )
     {
         $returnstring = '';
+
         for ( $i = 0; $i < strlen( $string ); ++$i )
         {
             if ( $hex )
@@ -54,23 +52,24 @@ class Helper
                 $returnstring .= ' ';
             }
         }
+
         if ( !empty( $htmlencoding ) )
         {
             if ( $htmlencoding === true )
             {
                 $htmlencoding = 'UTF-8'; // prior to GetId3 v1.9.0 the function's 4th parameter was boolean
             }
-            $returnstring = htmlentities( $returnstring, ENT_QUOTES,
-                                          $htmlencoding );
+
+            $returnstring = htmlentities( $returnstring, ENT_QUOTES, $htmlencoding );
         }
 
         return $returnstring;
     }
 
     /**
-     * @param  type $floatnumber
+     * @param  int|float $floatnumber
      *
-     * @return type
+     * @return int|float return int if possible otherwise float.
      */
     public static function trunc( $floatnumber )
     {
@@ -97,8 +96,8 @@ class Helper
     }
 
     /**
-     * @param  type $variable
-     * @param  type $increment
+     * @param int $variable
+     * @param int $increment
      *
      * @return bool
      */
@@ -117,9 +116,9 @@ class Helper
     }
 
     /**
-     * @param  type $floatnum
+     * @param  float $floatnum
      *
-     * @return type
+     * @return int|float
      */
     public static function CastAsInt( $floatnum )
     {
@@ -143,24 +142,26 @@ class Helper
     /**
      * @staticvar null $hasINT64
      *
-     * @param  type $num
+     * @param int $num
      *
      * @return bool
      */
     public static function intValueSupported( $num )
     {
-        // check if integers are 64-bit
-        static $hasINT64 = null;
-        if ( $hasINT64 === null )
-        { // 10x faster than is_null()
-            $hasINT64 = is_int( pow( 2, 31 ) ); // 32-bit int are limited to (2^31)-1
-            if ( !$hasINT64 && !defined( 'PHP_INT_MIN' ) )
+        if ( self::$hasINT64 === null )
+        {
+            // 10x faster than is_null()
+            self::$hasINT64 = is_int( pow( 2, 31 ) ); // 32-bit int are limited to (2^31)-1
+
+            if ( !self::$hasINT64 && !defined( 'PHP_INT_MIN' ) )
             {
                 define( 'PHP_INT_MIN', ~PHP_INT_MAX );
             }
+
         }
+
         // if integers are 64-bit - no other check required
-        if ( $hasINT64 || ( ( $num <= PHP_INT_MAX ) && ( $num >= PHP_INT_MIN ) ) )
+        if ( self::$hasINT64 || ( ( $num <= PHP_INT_MAX ) && ( $num >= PHP_INT_MIN ) ) )
         {
             return true;
         }
@@ -169,9 +170,9 @@ class Helper
     }
 
     /**
-     * @param  type $fraction
+     * @param string $fraction
      *
-     * @return type
+     * @return int|float
      */
     public static function DecimalizeFraction( $fraction )
     {
@@ -181,24 +182,23 @@ class Helper
     }
 
     /**
-     * @param  type $binarynumerator
+     * @param string $binarynumerator
      *
-     * @return type
+     * @return int|float
      */
     public static function DecimalBinary2Float( $binarynumerator )
     {
         $numerator   = self::Bin2Dec( $binarynumerator );
-        $denominator = self::Bin2Dec( '1' . str_repeat( '0',
-                                                        strlen( $binarynumerator ) ) );
+        $denominator = self::Bin2Dec( '1' . str_repeat( '0', strlen( $binarynumerator ) ) );
 
         return ( $numerator / $denominator );
     }
 
     /**
-     * @param  type $binarypointnumber
-     * @param  type $maxbits
+     * @param string $binarypointnumber
+     * @param int    $maxbits
      *
-     * @return type
+     * @return array
      */
     public static function NormalizeBinaryPoint( $binarypointnumber, $maxbits = 52 )
     {
@@ -211,34 +211,33 @@ class Helper
         {
             $binarypointnumber = '0' . $binarypointnumber;
         }
+
         $exponent = 0;
+
         while ( ( $binarypointnumber{0} != '1' ) || ( substr( $binarypointnumber, 1,
                                                               1 ) != '.' ) )
         {
             if ( substr( $binarypointnumber, 1, 1 ) == '.' )
             {
                 --$exponent;
-                $binarypointnumber = substr( $binarypointnumber, 2, 1 ) . '.' . substr( $binarypointnumber,
-                                                                                        3 );
+                $binarypointnumber = substr( $binarypointnumber, 2, 1 ) . '.' . substr( $binarypointnumber, 3 );
             }
             else
             {
                 $pointpos = strpos( $binarypointnumber, '.' );
                 $exponent += ( $pointpos - 1 );
                 $binarypointnumber = str_replace( '.', '', $binarypointnumber );
-                $binarypointnumber = $binarypointnumber{0}
-                    . '.' . substr( $binarypointnumber,
-                                    1 );
+                $binarypointnumber = $binarypointnumber{0} . '.' . substr( $binarypointnumber, 1 );
             }
         }
-        $binarypointnumber = str_pad( substr( $binarypointnumber, 0, $maxbits + 2 ),
-                                      $maxbits + 2, '0', STR_PAD_RIGHT );
+
+        $binarypointnumber = str_pad( substr( $binarypointnumber, 0, $maxbits + 2 ), $maxbits + 2, '0', STR_PAD_RIGHT );
 
         return [ 'normalized' => $binarypointnumber, 'exponent' => (int) $exponent ];
     }
 
     /**
-     * @param  type $floatvalue
+     * @param float $floatvalue
      *
      * @return string
      */
@@ -249,20 +248,22 @@ class Helper
         $intpart        = self::trunc( $floatvalue );
         $floatpart      = abs( $floatvalue - $intpart );
         $pointbitstring = '';
+
         while ( ( $floatpart != 0 ) && ( strlen( $pointbitstring ) < $maxbits ) )
         {
             $floatpart *= 2;
             $pointbitstring .= (string) self::trunc( $floatpart );
             $floatpart -= self::trunc( $floatpart );
         }
+
         $binarypointnumber = decbin( $intpart ) . '.' . $pointbitstring;
 
         return $binarypointnumber;
     }
 
     /**
-     * @param  type $floatvalue
-     * @param  type $bits
+     * @param float $floatvalue
+     * @param int   $bits
      *
      * @return bool
      */
@@ -285,6 +286,7 @@ class Helper
                 return false;
                 break;
         }
+
         if ( $floatvalue >= 0 )
         {
             $signbit = '0';
@@ -293,22 +295,22 @@ class Helper
         {
             $signbit = '1';
         }
-        $normalizedbinary  = self::NormalizeBinaryPoint( self::Float2BinaryDecimal( $floatvalue ),
-                                                         $fractionbits );
-        $biasedexponent    = pow( 2, $exponentbits - 1 ) - 1 + $normalizedbinary['exponent']; // (127 or 1023) +/- exponent
-        $exponentbitstring = str_pad( decbin( $biasedexponent ), $exponentbits,
-                                      '0', STR_PAD_LEFT );
-        $fractionbitstring = str_pad( substr( $normalizedbinary['normalized'], 2 ),
-                                      $fractionbits, '0', STR_PAD_RIGHT );
 
-        return self::BigEndian2String( self::Bin2Dec( $signbit . $exponentbitstring . $fractionbitstring ),
-                                       $bits % 8, false );
+        $normalizedbinary = self::NormalizeBinaryPoint( self::Float2BinaryDecimal( $floatvalue ), $fractionbits );
+
+        $biasedexponent = pow( 2, $exponentbits - 1 ) - 1 + $normalizedbinary['exponent']; // (127 or 1023) +/- exponent
+
+        $exponentbitstring = str_pad( decbin( $biasedexponent ), $exponentbits, '0', STR_PAD_LEFT );
+
+        $fractionbitstring = str_pad( substr( $normalizedbinary['normalized'], 2 ), $fractionbits, '0', STR_PAD_RIGHT );
+
+        return self::BigEndian2String( self::Bin2Dec( $signbit . $exponentbitstring . $fractionbitstring ), ( $bits % 8 ), false );
     }
 
     /**
-     * @param  type $byteword
+     * @param string $byteword
      *
-     * @return type
+     * @return int|float
      */
     public static function LittleEndian2Float( $byteword )
     {
@@ -318,20 +320,24 @@ class Helper
     /**
      * ANSI/IEEE Standard 754-1985, Standard for Binary Floating Point Arithmetic
      *
-     * @param  type $byteword
+     * @param string $byteword
      *
-     * @return int|bool
+     * @return int|float
      *
-     * @link http://www.psc.edu/general/software/packages/ieee/ieee.html
-     * @link http://www.scri.fsu.edu/~jac/MAD3401/Backgrnd/ieee.html
+     * @see http://www.psc.edu/general/software/packages/ieee/ieee.html
+     * @see http://www.scri.fsu.edu/~jac/MAD3401/Backgrnd/ieee.html
      */
     public static function BigEndian2Float( $byteword )
     {
         $bitword = self::BigEndian2Bin( $byteword );
+
+        $floatvalue = 0;
+
         if ( !$bitword )
         {
             return 0;
         }
+
         $signbit = $bitword{0};
 
         switch ( strlen( $byteword ) * 8 )
@@ -367,6 +373,7 @@ class Helper
                 return false;
                 break;
         }
+
         $exponentstring = substr( $bitword, 1, $exponentbits );
         $fractionstring = substr( $bitword, $exponentbits + 1, $fractionbits );
         $exponent       = self::Bin2Dec( $exponentstring );
@@ -392,10 +399,12 @@ class Helper
         {
             if ( $signbit == '1' )
             {
+                /** @noinspection PhpUnusedLocalVariableInspection */
                 $floatvalue = -0;
             }
             else
             {
+                /** @noinspection PhpUnusedLocalVariableInspection */
                 $floatvalue = 0;
             }
             $floatvalue = ( $signbit ? 0 : -0 );
@@ -422,37 +431,40 @@ class Helper
     }
 
     /**
-     * @param  type $byteword
-     * @param  type $synchsafe
-     * @param  type $signed
+     * @param string $byteword
+     * @param bool   $synchsafe
+     * @param bool   $signed
      *
-     * @return bool
+     * @return int|float
      *
-     * @throws Exception
+     * @throws \Exception
      */
-    public static function BigEndian2Int( $byteword, $synchsafe = false,
-                                          $signed = false )
+    public static function BigEndian2Int( $byteword, $synchsafe = false, $signed = false )
     {
-        $intvalue    = 0;
+        $intvalue = 0;
+
         $bytewordlen = strlen( $byteword );
+
         if ( $bytewordlen == 0 )
         {
             return false;
         }
+
         for ( $i = 0; $i < $bytewordlen; ++$i )
         {
             if ( $synchsafe )
-            { // disregard MSB, effectively 7-bit bytes
-                //$intvalue = $intvalue | (ord($byteword{$i}) & 0x7F) << (($bytewordlen - 1 - $i) * 7); // faster, but runs into problems past 2^31 on 32-bit systems
-                $intvalue += ( ord( $byteword{$i} ) & 0x7F ) * pow( 2,
-                                                                    ( $bytewordlen - 1 - $i ) * 7 );
+            {
+                // disregard MSB, effectively 7-bit bytes
+                // $intvalue = $intvalue | (ord($byteword{$i}) & 0x7F) << (($bytewordlen - 1 - $i) * 7); is faster
+                // but runs into problems past 2^31 on 32-bit systems
+                $intvalue += ( ord( $byteword{$i} ) & 0x7F ) * pow( 2, ( $bytewordlen - 1 - $i ) * 7 );
             }
             else
             {
-                $intvalue += ord( $byteword{$i} ) * pow( 256,
-                        ( $bytewordlen - 1 - $i ) );
+                $intvalue += ord( $byteword{$i} ) * pow( 256, ( $bytewordlen - 1 - $i ) );
             }
         }
+
         if ( $signed && !$synchsafe )
         {
             // synchsafe ints are not allowed to be signed
@@ -466,7 +478,8 @@ class Helper
             }
             else
             {
-                throw new DefaultException( 'ERROR: Cannot have signed integers larger than ' . ( 8 * PHP_INT_SIZE ) . '-bits (' . strlen( $byteword ) . ') in self::BigEndian2Int()' );
+                $message = 'ERROR: Cannot have signed integers larger than %s-bits (%s) in %s::%s()';
+                throw new DefaultException( sprintf( $message, ( 8 * PHP_INT_SIZE ), strlen( $byteword ), self::class, __METHOD__ ) );
             }
         }
 
@@ -474,10 +487,10 @@ class Helper
     }
 
     /**
-     * @param  type $byteword
-     * @param  type $signed
+     * @param string $byteword
+     * @param bool   $signed
      *
-     * @return type
+     * @return int|float
      */
     public static function LittleEndian2Int( $byteword, $signed = false )
     {
@@ -485,9 +498,9 @@ class Helper
     }
 
     /**
-     * @param  type $byteword
+     * @param string $byteword
      *
-     * @return type
+     * @return string
      */
     public static function BigEndian2Bin( $byteword )
     {
@@ -495,40 +508,43 @@ class Helper
         $bytewordlen = strlen( $byteword );
         for ( $i = 0; $i < $bytewordlen; ++$i )
         {
-            $binvalue .= str_pad( decbin( ord( $byteword{$i} ) ), 8, '0',
-                                  STR_PAD_LEFT );
+            $binvalue .= str_pad( decbin( ord( $byteword{$i} ) ), 8, '0', STR_PAD_LEFT );
         }
 
         return $binvalue;
     }
 
     /**
-     * @param  type $number
-     * @param  type $minbytes
-     * @param  type $synchsafe
-     * @param  type $signed
+     * @param int  $number
+     * @param int  $minbytes
+     * @param bool $synchsafe
+     * @param bool $signed
      *
-     * @return type
+     * @return string
      *
-     * @throws Exception
+     * @throws \Exception
      */
-    public static function BigEndian2String( $number, $minbytes = 1,
-                                             $synchsafe = false, $signed = false )
+    public static function BigEndian2String( $number, $minbytes = 1, $synchsafe = false, $signed = false )
     {
         if ( $number < 0 )
         {
             throw new DefaultException( 'ERROR: self::BigEndian2String() does not support negative numbers' );
         }
+
         $maskbyte  = ( ( $synchsafe || $signed ) ? 0x7F : 0xFF );
         $intstring = '';
+
         if ( $signed )
         {
             if ( $minbytes > PHP_INT_SIZE )
             {
-                throw new DefaultException( 'ERROR: Cannot have signed integers larger than ' . ( 8 * PHP_INT_SIZE ) . '-bits in self::BigEndian2String()' );
+                $message = 'ERROR: Cannot have signed integers larger than %s-bits in %s::%s()';
+                throw new DefaultException( sprintf( $message, ( 8 * PHP_INT_SIZE ), self::class, __METHOD__ ) );
             }
+
             $number = $number & ( 0x80 << ( 8 * ( $minbytes - 1 ) ) );
         }
+
         while ( $number != 0 )
         {
             $quotient  = ( $number / ( $maskbyte + 1 ) );
@@ -540,7 +556,7 @@ class Helper
     }
 
     /**
-     * @param  type $number
+     * @param int $number
      *
      * @return string
      */
@@ -549,32 +565,31 @@ class Helper
         while ( $number >= 256 )
         {
             $bytes[] = ( ( $number / 256 ) - ( floor( $number / 256 ) ) ) * 256;
-            $number  = floor( $number / 256 );
+
+            $number = floor( $number / 256 );
         }
+
         $bytes[]   = $number;
         $binstring = '';
+
         for ( $i = 0; $i < count( $bytes ); ++$i )
         {
-            $binstring = ( ( $i == count( $bytes ) - 1 )
-                    ? decbin( $bytes[$i] )
-                    : str_pad( decbin( $bytes[$i] ),
-                               8,
-                               '0',
-                               STR_PAD_LEFT ) ) . $binstring;
+            $binstring = ( ( $i == count( $bytes ) - 1 ) ? decbin( $bytes[$i] ) : str_pad( decbin( $bytes[$i] ), 8, '0', STR_PAD_LEFT ) ) . $binstring;
         }
 
         return $binstring;
     }
 
     /**
-     * @param  type $binstring
-     * @param  type $signed
+     * @param string $binstring
+     * @param bool   $signed
      *
-     * @return type
+     * @return float|int
      */
     public static function Bin2Dec( $binstring, $signed = false )
     {
         $signmult = 1;
+
         if ( $signed )
         {
             if ( $binstring{0} == '1' )
@@ -583,26 +598,29 @@ class Helper
             }
             $binstring = substr( $binstring, 1 );
         }
+
         $decvalue = 0;
+
         for ( $i = 0; $i < strlen( $binstring ); ++$i )
         {
-            $decvalue += ( (int) substr( $binstring, strlen( $binstring ) - $i - 1,
-                                         1 ) ) * pow( 2, $i );
+            $decvalue += ( (int) substr( $binstring, strlen( $binstring ) - $i - 1, 1 ) ) * pow( 2, $i );
         }
 
         return self::CastAsInt( $decvalue * $signmult );
     }
 
     /**
-     * @param  type $binstring
+     * @param string $binstring
      *
      * @return string
      */
     public static function Bin2String( $binstring )
     {
         // return 'hi' for input of '0110100001101001'
-        $string            = '';
+        $string = '';
+
         $binstringreversed = strrev( $binstring );
+
         for ( $i = 0; $i < strlen( $binstringreversed ); $i += 8 )
         {
             $string = chr( self::Bin2Dec( strrev( substr( $binstringreversed, $i, 8 ) ) ) ) . $string;
@@ -612,16 +630,16 @@ class Helper
     }
 
     /**
-     * @param  type $number
-     * @param  type $minbytes
-     * @param  type $synchsafe
+     * @param  int  $number
+     * @param  int  $minbytes
+     * @param  bool $synchsafe
      *
-     * @return type
+     * @return string type
      */
-    public static function LittleEndian2String( $number, $minbytes = 1,
-                                                $synchsafe = false )
+    public static function LittleEndian2String( $number, $minbytes = 1, $synchsafe = false )
     {
         $intstring = '';
+
         while ( $number > 0 )
         {
             if ( $synchsafe )
@@ -640,10 +658,10 @@ class Helper
     }
 
     /**
-     * @param  type $array1
-     * @param  type $array2
+     * @param array $array1
+     * @param array $array2
      *
-     * @return bool
+     * @return array|bool
      */
     public static function array_merge_clobber( $array1, $array2 )
     {
@@ -653,13 +671,14 @@ class Helper
         {
             return false;
         }
+
         $newarray = $array1;
+
         foreach ( $array2 as $key => $val )
         {
             if ( is_array( $val ) && isset( $newarray[$key] ) && is_array( $newarray[$key] ) )
             {
-                $newarray[$key] = self::array_merge_clobber( $newarray[$key],
-                                                             $val );
+                $newarray[$key] = self::array_merge_clobber( $newarray[$key], $val );
             }
             else
             {
@@ -671,10 +690,10 @@ class Helper
     }
 
     /**
-     * @param  type $array1
-     * @param  type $array2
+     * @param array $array1
+     * @param array $array2
      *
-     * @return bool
+     * @return array|bool
      */
     public static function array_merge_noclobber( $array1, $array2 )
     {
@@ -682,13 +701,14 @@ class Helper
         {
             return false;
         }
+
         $newarray = $array1;
+
         foreach ( $array2 as $key => $val )
         {
             if ( is_array( $val ) && isset( $newarray[$key] ) && is_array( $newarray[$key] ) )
             {
-                $newarray[$key] = self::array_merge_noclobber( $newarray[$key],
-                                                               $val );
+                $newarray[$key] = self::array_merge_noclobber( $newarray[$key], $val );
             }
             elseif ( !isset( $newarray[$key] ) )
             {
@@ -700,13 +720,15 @@ class Helper
     }
 
     /**
-     * @param  type $theArray
+     * @param array $theArray
      *
      * @return bool
      */
     public static function ksort_recursive( &$theArray )
     {
+
         ksort( $theArray );
+
         foreach ( $theArray as $key => $value )
         {
             if ( is_array( $value ) )
@@ -719,8 +741,8 @@ class Helper
     }
 
     /**
-     * @param  type $filename
-     * @param  type $numextensions
+     * @param string $filename
+     * @param int    $numextensions
      *
      * @return string
      */
@@ -729,14 +751,19 @@ class Helper
         if ( strstr( $filename, '.' ) )
         {
             $reversedfilename = strrev( $filename );
-            $offset           = 0;
+
+            $offset = 0;
+
             for ( $i = 0; $i < $numextensions; ++$i )
             {
+
                 $offset = strpos( $reversedfilename, '.', $offset + 1 );
+
                 if ( $offset === false )
                 {
                     return '';
                 }
+
             }
 
             return strrev( substr( $reversedfilename, 0, $offset ) );
@@ -746,29 +773,27 @@ class Helper
     }
 
     /**
-     * @param  type $seconds
+     * @param int $seconds
      *
-     * @return type
+     * @return string
      */
     public static function PlaytimeString( $seconds )
     {
-        $sign    = ( ( $seconds < 0 ) ? '-' : '' );
-        $seconds = round( abs( $seconds ) );
-        $H       = (int) floor( $seconds / 3600 );
-        $M       = (int) floor( ( $seconds - ( 3600 * $H ) ) / 60 );
-        $S       = (int) round( $seconds - ( 3600 * $H ) - ( 60 * $M ) );
+        $sign = ( ( $seconds < 0 ) ? '-' : '' );
 
-        return $sign . ( $H ? $H . ':' : '' ) . ( $H ? str_pad( $M, 2, '0',
-                                                                STR_PAD_LEFT ) : intval( $M ) ) . ':' . str_pad( $S,
-                                                                                                                 2,
-                                                                                                                 0,
-                                                                                                                 STR_PAD_LEFT );
+        $seconds = round( abs( $seconds ) );
+
+        $H = (int) floor( $seconds / 3600 );
+        $M = (int) floor( ( $seconds - ( 3600 * $H ) ) / 60 );
+        $S = (int) round( $seconds - ( 3600 * $H ) - ( 60 * $M ) );
+
+        return $sign . ( $H ? $H . ':' : '' ) . ( $H ? str_pad( $M, 2, '0', STR_PAD_LEFT ) : intval( $M ) ) . ':' . str_pad( $S, 2, 0, STR_PAD_LEFT );
     }
 
     /**
-     * @param  type $macdate
+     * @param int $macdate
      *
-     * @return type
+     * @return int|float
      */
     public static function DateMac2Unix( $macdate )
     {
@@ -778,52 +803,43 @@ class Helper
     }
 
     /**
-     * @param  type $rawdata
+     * @param string $rawdata
      *
-     * @return type
+     * @return int|float
      */
     public static function FixedPoint8_8( $rawdata )
     {
-        return self::BigEndian2Int( substr( $rawdata, 0, 1 ) ) + (float) ( self::BigEndian2Int( substr( $rawdata,
-                                                                                                        1,
-                                                                                                        1 ) ) / pow( 2,
-                                                                                                                     8 ) );
+        return self::BigEndian2Int( substr( $rawdata, 0, 1 ) ) + (float) ( self::BigEndian2Int( substr( $rawdata, 1, 1 ) ) / pow( 2, 8 ) );
     }
 
     /**
-     * @param  type $rawdata
+     * @param string $rawdata
      *
-     * @return type
+     * @return int|float
      */
     public static function FixedPoint16_16( $rawdata )
     {
-        return self::BigEndian2Int( substr( $rawdata, 0, 2 ) ) + (float) ( self::BigEndian2Int( substr( $rawdata,
-                                                                                                        2,
-                                                                                                        2 ) ) / pow( 2,
-                                                                                                                     16 ) );
+        return self::BigEndian2Int( substr( $rawdata, 0, 2 ) ) + (float) ( self::BigEndian2Int( substr( $rawdata, 2, 2 ) ) / pow( 2, 16 ) );
     }
 
     /**
-     * @param  type $rawdata
+     * @param string $rawdata
      *
-     * @return type
+     * @return int|float
      */
     public static function FixedPoint2_30( $rawdata )
     {
         $binarystring = self::BigEndian2Bin( $rawdata );
 
-        return self::Bin2Dec( substr( $binarystring, 0, 2 ) ) + (float) ( self::Bin2Dec( substr( $binarystring,
-                                                                                                 2,
-                                                                                                 30 ) ) / pow( 2,
-                                                                                                               30 ) );
+        return self::Bin2Dec( substr( $binarystring, 0, 2 ) ) + (float) ( self::Bin2Dec( substr( $binarystring, 2, 30 ) ) / pow( 2, 30 ) );
     }
 
     /**
-     * @param  type $ArrayPath
-     * @param  type $Separator
-     * @param  type $Value
+     * @param string $ArrayPath
+     * @param string $Separator
+     * @param mixed  $Value
      *
-     * @return type
+     * @return array
      */
     public static function CreateDeepArray( $ArrayPath, $Separator, $Value )
     {
@@ -837,12 +853,10 @@ class Helper
         {
             $ArrayPath = substr( $ArrayPath, 1 );
         }
+
         if ( ( $pos = strpos( $ArrayPath, $Separator ) ) !== false )
         {
-            $ReturnedArray[substr( $ArrayPath, 0, $pos )] = self::CreateDeepArray( substr( $ArrayPath,
-                                                                                           $pos + 1 ),
-                                                                                   $Separator,
-                                                                                   $Value );
+            $ReturnedArray[substr( $ArrayPath, 0, $pos )] = self::CreateDeepArray( substr( $ArrayPath, $pos + 1 ), $Separator, $Value );
         }
         else
         {
@@ -853,10 +867,10 @@ class Helper
     }
 
     /**
-     * @param  type $arraydata
-     * @param  type $returnkey
+     * @param array $arraydata
+     * @param bool  $returnkey
      *
-     * @return type
+     * @return string|int
      */
     public static function array_max( $arraydata, $returnkey = false )
     {
@@ -878,10 +892,10 @@ class Helper
     }
 
     /**
-     * @param  type $arraydata
-     * @param  type $returnkey
+     * @param array $arraydata
+     * @param bool  $returnkey
      *
-     * @return type
+     * @return string|int
      */
     public static function array_min( $arraydata, $returnkey = false )
     {
@@ -903,29 +917,26 @@ class Helper
     }
 
     /**
-     * @param  type $XMLstring
+     * @param string $XMLstring
      *
-     * @return bool
+     * @return array|bool
      */
     public static function XML2array( $XMLstring )
     {
-        if ( function_exists( 'simplexml_load_string' ) )
+        if ( function_exists( 'simplexml_load_string' ) && function_exists( 'get_object_vars' ) )
         {
-            if ( function_exists( 'get_object_vars' ) )
-            {
-                $XMLobject = simplexml_load_string( $XMLstring );
+            $XMLobject = simplexml_load_string( $XMLstring );
 
-                return self::SimpleXMLelement2array( $XMLobject );
-            }
+            return self::SimpleXMLelement2array( $XMLobject );
         }
 
         return false;
     }
 
     /**
-     * @param  type $XMLobject
+     * @param \SimpleXMLElement|array $XMLobject
      *
-     * @return type
+     * @return array
      */
     public static function SimpleXMLelement2array( $XMLobject )
     {
@@ -933,7 +944,9 @@ class Helper
         {
             return $XMLobject;
         }
+
         $XMLarray = ( is_object( $XMLobject ) ? get_object_vars( $XMLobject ) : $XMLobject );
+
         foreach ( $XMLarray as $key => $value )
         {
             $XMLarray[$key] = self::SimpleXMLelement2array( $value );
@@ -947,24 +960,24 @@ class Helper
      *
      * @staticvar string $tempdir
      *
-     * @param  type $file
-     * @param  type $offset
-     * @param  type $end
-     * @param  type $algorithm
+     * @param string $file
+     * @param int    $offset
+     * @param int    $end
+     * @param string $algorithm
      *
-     * @return bool
+     * @return bool|string
      *
-     * @throws Exception
-     *
-     * @author    Allan Hansen <ahØartemis*dk>
+     * @throws DefaultException
      */
     public static function hash_data( $file, $offset, $end, $algorithm )
     {
         static $tempdir = '';
+
         if ( !self::intValueSupported( $end ) )
         {
             return false;
         }
+
         switch ( $algorithm )
         {
             case 'md5':
@@ -973,19 +986,19 @@ class Helper
                 $windows_call  = 'md5sum.exe';
                 $hash_length   = 32;
                 break;
-
             case 'sha1':
                 $hash_function = 'sha1_file';
                 $unix_call     = 'sha1sum';
                 $windows_call  = 'sha1sum.exe';
                 $hash_length   = 40;
                 break;
-
             default:
                 throw new DefaultException( 'Invalid algorithm (' . $algorithm . ') in self::hash_data()' );
                 break;
         }
+
         $size = $end - $offset;
+
         while ( true )
         {
             if ( GetId3Core::environmentIsWindows() )
@@ -999,17 +1012,18 @@ class Helper
                 }
 
                 $RequiredFiles = [ 'cygwin1.dll', 'head.exe', 'tail.exe', $windows_call ];
+
                 foreach ( $RequiredFiles as $required_file )
                 {
+
                     if ( !is_readable( GetId3Core::getHelperAppsDir() . $required_file ) )
                     {
                         // helper apps not available - fall back to old method
                         break 2;
                     }
                 }
-                $commandline = GetId3Core::getHelperAppsDir() . 'head.exe -c ' . $end . ' ' . escapeshellarg( str_replace( '/',
-                                                                                                                           DIRECTORY_SEPARATOR,
-                                                                                                                           $file ) ) . ' | ';
+
+                $commandline = GetId3Core::getHelperAppsDir() . 'head.exe -c ' . $end . ' ' . escapeshellarg( str_replace( '/', DIRECTORY_SEPARATOR, $file ) ) . ' | ';
                 $commandline .= GetId3Core::getHelperAppsDir() . 'tail.exe -c ' . $size . ' | ';
                 $commandline .= GetId3Core::getHelperAppsDir() . $windows_call;
             }
@@ -1019,6 +1033,7 @@ class Helper
                 $commandline .= 'tail -c' . $size . ' | ';
                 $commandline .= $unix_call;
             }
+
             if ( preg_match( '#(1|ON)#i', ini_get( 'safe_mode' ) ) )
             {
                 //throw new DefaultException('PHP running in Safe Mode - backtick operator not available, using slower non-system-call '.$algorithm.' algorithm');
@@ -1035,6 +1050,7 @@ class Helper
             $tempdir     = $getid3_temp->tempdir;
             unset( $getid3_temp );
         }
+
         // try to create a temporary file in the system temp directory - invalid dirname should force to system temp dir
         if ( ( $data_filename = tempnam( $tempdir, 'gI3' ) ) === false )
         {
@@ -1055,72 +1071,89 @@ class Helper
         {
             throw new DefaultException( 'self::CopyFileParts() failed in getid_lib::hash_data(): ' . $e->getMessage() );
         }
-        unlink( $data_filename );
+        finally
+        {
+            if ( !empty( $data_filename ) && is_file( $data_filename ) )
+            {
+                unlink( $data_filename );
+            }
+        }
 
         return $result;
     }
 
     /**
-     * @param  type $filename_source
-     * @param  type $filename_dest
-     * @param  type $offset
-     * @param  type $length
+     * @param string $filename_source
+     * @param string $filename_dest
+     * @param int    $offset
+     * @param int    $length
      *
      * @return bool
      *
-     * @throws Exception
+     * @throws DefaultException
      */
-    public static function CopyFileParts( $filename_source, $filename_dest,
-                                          $offset, $length )
+    public static function CopyFileParts( $filename_source, $filename_dest, $offset, $length )
     {
+
         if ( !self::intValueSupported( $offset + $length ) )
         {
-            throw new DefaultException( 'cannot copy file portion, it extends beyond the ' . round( PHP_INT_MAX / 1073741824 ) . 'GB limit' );
+            $message = 'Cannot copy file portion, it extends beyond the %s GB limit';
+            throw new DefaultException( sprintf( $message, round( PHP_INT_MAX / 1073741824 ) ) );
         }
-        if ( is_readable( $filename_source ) && is_file( $filename_source ) && ( $fp_src = fopen( $filename_source,
-                                                                                                  'rb' ) )
-        )
-        {
-            if ( ( $fp_dest = fopen( $filename_dest, 'wb' ) ) )
-            {
-                if ( fseek( $fp_src, $offset, SEEK_SET ) == 0 )
-                {
-                    $byteslefttowrite = $length;
-                    while ( ( $byteslefttowrite > 0 ) && ( $buffer = fread( $fp_src,
-                                                                            min( $byteslefttowrite,
-                                                                                 GetId3Core::FREAD_BUFFER_SIZE ) ) ) )
-                    {
-                        $byteswritten = fwrite( $fp_dest, $buffer,
-                                                $byteslefttowrite );
-                        $byteslefttowrite -= $byteswritten;
-                    }
 
-                    return true;
+        try
+        {
+            if ( is_readable( $filename_source ) && is_file( $filename_source ) && ( $fp_src = fopen( $filename_source, 'rb' ) ) )
+            {
+                if ( ( $fp_dest = fopen( $filename_dest, 'wb' ) ) )
+                {
+                    if ( fseek( $fp_src, $offset, SEEK_SET ) == 0 )
+                    {
+                        $byteslefttowrite = $length;
+
+                        while ( ( $byteslefttowrite > 0 ) && ( $buffer = fread( $fp_src, min( $byteslefttowrite, GetId3Core::FREAD_BUFFER_SIZE ) ) ) )
+                        {
+                            $byteswritten = fwrite( $fp_dest, $buffer, $byteslefttowrite );
+                            $byteslefttowrite -= $byteswritten;
+                        }
+
+                        return true;
+                    }
+                    else
+                    {
+                        throw new DefaultException( 'failed to seek to offset ' . $offset . ' in ' . $filename_source );
+                    }
                 }
                 else
                 {
-                    throw new DefaultException( 'failed to seek to offset ' . $offset . ' in ' . $filename_source );
+                    throw new DefaultException( 'failed to create file for writing ' . $filename_dest );
                 }
-                fclose( $fp_dest );
             }
             else
             {
-                throw new DefaultException( 'failed to create file for writing ' . $filename_dest );
+                throw new DefaultException( 'failed to open file for reading ' . $filename_source );
             }
-            fclose( $fp_src );
         }
-        else
+        finally
         {
-            throw new DefaultException( 'failed to open file for reading ' . $filename_source );
+            if ( !empty( $fp_dest ) && is_resource( $fp_dest ) )
+            {
+                fclose( $fp_dest );
+            }
+
+            if ( !empty( $fp_src ) && is_resource( $fp_src ) )
+            {
+                fclose( $fp_src );
+            }
         }
 
         return false;
     }
 
     /**
-     * @param  type $charval
+     * @param int $charval
      *
-     * @return type
+     * @return string
      */
     public static function iconv_fallback_int_utf8( $charval )
     {
@@ -1157,23 +1190,27 @@ class Helper
     /**
      * ISO-8859-1 => UTF-8
      *
-     * @param  type $string
-     * @param  type $bom
+     * @param string $string
+     * @param bool   $bom
      *
-     * @return type
+     * @return string
      */
     public static function iconv_fallback_iso88591_utf8( $string, $bom = false )
     {
+
         if ( function_exists( 'utf8_encode' ) )
         {
             return utf8_encode( $string );
         }
+
         // utf8_encode() unavailable, use GetId3Core()'s iconv_fallback() conversions (possibly PHP is compiled without XML support)
         $newcharstring = '';
+
         if ( $bom )
         {
             $newcharstring .= "\xEF\xBB\xBF";
         }
+
         for ( $i = 0; $i < strlen( $string ); ++$i )
         {
             $charval = ord( $string{$i} );
@@ -1186,18 +1223,21 @@ class Helper
     /**
      * ISO-8859-1 => UTF-16BE
      *
-     * @param  type $string
-     * @param  type $bom
+     * @param string $string
+     * @param bool   $bom
      *
      * @return string
      */
     public static function iconv_fallback_iso88591_utf16be( $string, $bom = false )
     {
+
         $newcharstring = '';
+
         if ( $bom )
         {
             $newcharstring .= "\xFE\xFF";
         }
+
         for ( $i = 0; $i < strlen( $string ); ++$i )
         {
             $newcharstring .= "\x00" . $string{$i};
@@ -1209,18 +1249,21 @@ class Helper
     /**
      * ISO-8859-1 => UTF-16LE
      *
-     * @param  type $string
-     * @param  type $bom
+     * @param string $string
+     * @param bool   $bom
      *
      * @return string
      */
     public static function iconv_fallback_iso88591_utf16le( $string, $bom = false )
     {
+
         $newcharstring = '';
+
         if ( $bom )
         {
             $newcharstring .= "\xFF\xFE";
         }
+
         for ( $i = 0; $i < strlen( $string ); ++$i )
         {
             $newcharstring .= $string{$i}
@@ -1233,9 +1276,9 @@ class Helper
     /**
      * ISO-8859-1 => UTF-16LE (BOM)
      *
-     * @param  type $string
+     * @param string $string
      *
-     * @return type
+     * @return string
      */
     public static function iconv_fallback_iso88591_utf16( $string )
     {
@@ -1245,20 +1288,23 @@ class Helper
     /**
      * UTF-8 => ISO-8859-1
      *
-     * @param  type $string
+     * @param string $string
      *
-     * @return type
+     * @return string
      */
     public static function iconv_fallback_utf8_iso88591( $string )
     {
+
         if ( function_exists( 'utf8_decode' ) )
         {
             return utf8_decode( $string );
         }
+
         // utf8_decode() unavailable, use GetId3Core()'s iconv_fallback() conversions (possibly PHP is compiled without XML support)
         $newcharstring = '';
         $offset        = 0;
         $stringlength  = strlen( $string );
+
         while ( $offset < $stringlength )
         {
             if ( ( ord( $string{$offset} ) | 0x07 ) == 0xF7 )
@@ -1309,22 +1355,27 @@ class Helper
     /**
      * UTF-8 => UTF-16BE
      *
-     * @param  type $string
-     * @param  type $bom
+     * @param string $string
+     * @param bool   $bom
      *
-     * @return type
+     * @return string
      */
     public static function iconv_fallback_utf8_utf16be( $string, $bom = false )
     {
         $newcharstring = '';
+
         if ( $bom )
         {
             $newcharstring .= "\xFE\xFF";
         }
-        $offset       = 0;
+
+        $offset = 0;
+
         $stringlength = strlen( $string );
+
         while ( $offset < $stringlength )
         {
+
             if ( ( ord( $string{$offset} ) | 0x07 ) == 0xF7 )
             {
                 // 11110bbb 10bbbbbb 10bbbbbb 10bbbbbb
@@ -1361,10 +1412,10 @@ class Helper
                 $charval = false;
                 $offset += 1;
             }
+
             if ( $charval !== false )
             {
-                $newcharstring .= ( ( $charval < 65536 ) ? self::BigEndian2String( $charval,
-                                                                                   2 ) : "\x00" . '?' );
+                $newcharstring .= ( ( $charval < 65536 ) ? self::BigEndian2String( $charval, 2 ) : "\x00" . '?' );
             }
         }
 
@@ -1374,20 +1425,25 @@ class Helper
     /**
      * UTF-8 => UTF-16LE
      *
-     * @param  type $string
-     * @param  type $bom
+     * @param  string $string
+     * @param  bool   $bom
      *
-     * @return type
+     * @return string
      */
     public static function iconv_fallback_utf8_utf16le( $string, $bom = false )
     {
+
         $newcharstring = '';
+
         if ( $bom )
         {
             $newcharstring .= "\xFF\xFE";
         }
-        $offset       = 0;
+
+        $offset = 0;
+
         $stringlength = strlen( $string );
+
         while ( $offset < $stringlength )
         {
             if ( ( ord( $string{$offset} ) | 0x07 ) == 0xF7 )
@@ -1426,10 +1482,10 @@ class Helper
                 $charval = false;
                 $offset += 1;
             }
+
             if ( $charval !== false )
             {
-                $newcharstring .= ( ( $charval < 65536 ) ? self::LittleEndian2String( $charval,
-                                                                                      2 ) : '?' . "\x00" );
+                $newcharstring .= ( ( $charval < 65536 ) ? self::LittleEndian2String( $charval, 2 ) : '?' . "\x00" );
             }
         }
 
@@ -1439,9 +1495,9 @@ class Helper
     /**
      * UTF-8 => UTF-16LE (BOM)
      *
-     * @param  type $string
+     * @param string $string
      *
-     * @return type
+     * @return string
      */
     public static function iconv_fallback_utf8_utf16( $string )
     {
@@ -1451,18 +1507,21 @@ class Helper
     /**
      * UTF-16BE => UTF-8
      *
-     * @param  type $string
+     * @param string $string
      *
-     * @return type
+     * @return string
      */
     public static function iconv_fallback_utf16be_utf8( $string )
     {
+
         if ( substr( $string, 0, 2 ) == "\xFE\xFF" )
         {
             // strip BOM
             $string = substr( $string, 2 );
         }
+
         $newcharstring = '';
+
         for ( $i = 0; $i < strlen( $string ); $i += 2 )
         {
             $charval = self::BigEndian2Int( substr( $string, $i, 2 ) );
@@ -1475,9 +1534,9 @@ class Helper
     /**
      * UTF-16LE => UTF-8
      *
-     * @param  type $string
+     * @param  string $string
      *
-     * @return type
+     * @return string
      */
     public static function iconv_fallback_utf16le_utf8( $string )
     {
@@ -1486,7 +1545,9 @@ class Helper
             // strip BOM
             $string = substr( $string, 2 );
         }
+
         $newcharstring = '';
+
         for ( $i = 0; $i < strlen( $string ); $i += 2 )
         {
             $charval = self::LittleEndian2Int( substr( $string, $i, 2 ) );
@@ -1499,9 +1560,9 @@ class Helper
     /**
      * UTF-16BE => ISO-8859-1
      *
-     * @param  type $string
+     * @param string $string
      *
-     * @return type
+     * @return string
      */
     public static function iconv_fallback_utf16be_iso88591( $string )
     {
@@ -1510,7 +1571,9 @@ class Helper
             // strip BOM
             $string = substr( $string, 2 );
         }
+
         $newcharstring = '';
+
         for ( $i = 0; $i < strlen( $string ); $i += 2 )
         {
             $charval = self::BigEndian2Int( substr( $string, $i, 2 ) );
@@ -1523,9 +1586,9 @@ class Helper
     /**
      * UTF-16LE => ISO-8859-1
      *
-     * @param  type $string
+     * @param string $string
      *
-     * @return type
+     * @return string
      */
     public static function iconv_fallback_utf16le_iso88591( $string )
     {
@@ -1534,7 +1597,9 @@ class Helper
             // strip BOM
             $string = substr( $string, 2 );
         }
+
         $newcharstring = '';
+
         for ( $i = 0; $i < strlen( $string ); $i += 2 )
         {
             $charval = self::LittleEndian2Int( substr( $string, $i, 2 ) );
@@ -1547,13 +1612,15 @@ class Helper
     /**
      * UTF-16 (BOM) => ISO-8859-1
      *
-     * @param  type $string
+     * @param string $string
      *
-     * @return type
+     * @return string
      */
     public static function iconv_fallback_utf16_iso88591( $string )
     {
+
         $bom = substr( $string, 0, 2 );
+
         if ( $bom == "\xFE\xFF" )
         {
             return self::iconv_fallback_utf16be_iso88591( substr( $string, 2 ) );
@@ -1569,9 +1636,9 @@ class Helper
     /**
      * UTF-16 (BOM) => UTF-8
      *
-     * @param  type $string
+     * @param string $string
      *
-     * @return type
+     * @return string
      */
     public static function iconv_fallback_utf16_utf8( $string )
     {
@@ -1591,27 +1658,25 @@ class Helper
     /**
      * @staticvar array $ConversionFunctionList
      *
-     * @param  type $in_charset
-     * @param  type $out_charset
-     * @param  type $string
+     * @param string $in_charset
+     * @param string $out_charset
+     * @param string $string
      *
-     * @return type
+     * @return string
      *
-     * @throws Exception
+     * @throws DefaultException
      */
     public static function iconv_fallback( $in_charset, $out_charset, $string )
     {
+
         if ( $in_charset == $out_charset )
         {
             return $string;
         }
 
-        // iconv() availble
         if ( function_exists( 'iconv' ) )
         {
-            if ( $converted_string = @iconv( $in_charset,
-                                             $out_charset . '//TRANSLIT', $string )
-            )
+            if ( $converted_string = @iconv( $in_charset, $out_charset . '//TRANSLIT', $string ) )
             {
                 switch ( $out_charset )
                 {
@@ -1630,6 +1695,7 @@ class Helper
 
         // iconv() not available
         static $ConversionFunctionList = [];
+
         if ( empty( $ConversionFunctionList ) )
         {
             $ConversionFunctionList['ISO-8859-1']['UTF-8']    = 'iconv_fallback_iso88591_utf8';
@@ -1647,25 +1713,28 @@ class Helper
             $ConversionFunctionList['UTF-16BE']['ISO-8859-1'] = 'iconv_fallback_utf16be_iso88591';
             $ConversionFunctionList['UTF-16BE']['UTF-8']      = 'iconv_fallback_utf16be_utf8';
         }
+
         if ( isset( $ConversionFunctionList[strtoupper( $in_charset )][strtoupper( $out_charset )] ) )
         {
             $ConversionFunction = $ConversionFunctionList[strtoupper( $in_charset )][strtoupper( $out_charset )];
 
             return self::$ConversionFunction( $string );
         }
+
         throw new DefaultException( 'PHP does not have iconv() support - cannot convert from ' . $in_charset . ' to ' . $out_charset );
     }
 
     /**
-     * @param  type $string
-     * @param  type $charset
+     * @param string $string
+     * @param string $charset
      *
      * @return string
      */
-    public static function MultiByteCharString2HTML( $string,
-                                                     $charset = 'ISO-8859-1' )
+    public static function MultiByteCharString2HTML( $string, $charset = 'ISO-8859-1' )
     {
-        $string     = (string) $string; // in case trying to pass a numeric (float, int) string, would otherwise return an empty string
+
+        $string = (string) $string; // in case trying to pass a numeric (float, int) string, would otherwise return an empty string
+
         $HTMLstring = '';
 
         switch ( $charset )
@@ -1699,13 +1768,17 @@ class Helper
             case 'Windows-1252':
                 $HTMLstring = htmlentities( $string, ENT_COMPAT, $charset );
                 break;
-
             case 'UTF-8':
+
                 $strlen = strlen( $string );
+
                 for ( $i = 0; $i < $strlen; ++$i )
                 {
+
                     $char_ord_val = ord( $string{$i} );
-                    $charval      = 0;
+
+                    $charval = 0;
+
                     if ( $char_ord_val < 0x80 )
                     {
                         $charval = $char_ord_val;
@@ -1738,7 +1811,6 @@ class Helper
                     }
                 }
                 break;
-
             case 'UTF-16LE':
                 for ( $i = 0; $i < strlen( $string ); $i += 2 )
                 {
@@ -1780,9 +1852,9 @@ class Helper
     /**
      * @staticvar array $RGADname
      *
-     * @param  type $namecode
+     * @param int $namecode
      *
-     * @return type
+     * @return string
      */
     public static function RGADnameLookup( $namecode )
     {
@@ -1800,9 +1872,9 @@ class Helper
     /**
      * @staticvar array $RGADoriginator
      *
-     * @param  type $originatorcode
+     * @param int $originatorcode
      *
-     * @return type
+     * @return string
      */
     public static function RGADoriginatorLookup( $originatorcode )
     {
@@ -1819,14 +1891,16 @@ class Helper
     }
 
     /**
-     * @param  type $rawadjustment
-     * @param  type $signbit
+     * @param int|float $rawadjustment
+     * @param int       $signbit
      *
-     * @return type
+     * @return float
      */
     public static function RGADadjustmentLookup( $rawadjustment, $signbit )
     {
+
         $adjustment = $rawadjustment / 10;
+
         if ( $signbit == 1 )
         {
             $adjustment *= -1;
@@ -1836,14 +1910,13 @@ class Helper
     }
 
     /**
-     * @param  type $namecode
-     * @param  type $originatorcode
-     * @param  type $replaygain
+     * @param int $namecode
+     * @param int $originatorcode
+     * @param int $replaygain
      *
-     * @return type
+     * @return string
      */
-    public static function RGADgainString( $namecode, $originatorcode,
-                                           $replaygain )
+    public static function RGADgainString( $namecode, $originatorcode, $replaygain )
     {
         if ( $replaygain < 0 )
         {
@@ -1863,9 +1936,9 @@ class Helper
     }
 
     /**
-     * @param  type $amplitude
+     * @param float $amplitude
      *
-     * @return type
+     * @return int
      */
     public static function RGADamplitude2dB( $amplitude )
     {
@@ -1875,14 +1948,15 @@ class Helper
     /**
      * @staticvar string $tempdir
      *
-     * @param  type $imgData
-     * @param  type $imageinfo
+     * @param string $imgData
+     * @param array  $imageinfo
      *
-     * @return type
+     * @return array|false
      */
     public static function GetDataImageSize( $imgData, &$imageinfo )
     {
         static $tempdir = '';
+
         if ( empty( $tempdir ) )
         {
             // yes this is ugly, feel free to suggest a better way
@@ -1890,18 +1964,23 @@ class Helper
             $tempdir     = $getid3_temp->tempdir;
             unset( $getid3_temp );
         }
+
         $GetDataImageSize = false;
+
         if ( $tempfilename = tempnam( $tempdir, 'gI3' ) )
         {
-            if ( is_writable( $tempfilename ) && is_file( $tempfilename ) && ( $tmp = fopen( $tempfilename,
-                                                                                             'wb' ) )
-            )
+            if ( is_writable( $tempfilename ) && is_file( $tempfilename ) && ( $tmp = fopen( $tempfilename, 'wb' ) ) )
             {
                 fwrite( $tmp, $imgData );
                 fclose( $tmp );
-                $GetDataImageSize = @GetImageSize( $tempfilename, $imageinfo );
+
+                $GetDataImageSize = @getimagesize( $tempfilename, $imageinfo );
             }
-            unlink( $tempfilename );
+
+            if ( !empty( $tempfilename ) && is_file( $tempfilename ) )
+            {
+                unlink( $tempfilename );
+            }
         }
 
         return $GetDataImageSize;
@@ -1910,13 +1989,15 @@ class Helper
     /**
      * @staticvar array $ImageTypesLookup
      *
-     * @param  type $imagetypeid
+     * @param int $imagetypeid
      *
-     * @return type
+     * @return string
      */
     public static function ImageTypesLookup( $imagetypeid )
     {
+
         static $ImageTypesLookup = [];
+
         if ( empty( $ImageTypesLookup ) )
         {
             $ImageTypesLookup[1]  = 'gif';
@@ -1939,7 +2020,7 @@ class Helper
     }
 
     /**
-     * @param  type $ThisFileInfo
+     * @param array $ThisFileInfo
      *
      * @return bool
      */
@@ -1959,19 +2040,19 @@ class Helper
                         {
                             if ( empty( $ThisFileInfo['comments'][$tagname] ) )
                             {
-
                                 // fall through and append value
                             }
+
                             elseif ( $tagtype == 'id3v1' )
                             {
                                 $newvaluelength = strlen( trim( $value ) );
+
                                 foreach ( $ThisFileInfo['comments'][$tagname] as $existingkey => $existingvalue )
                                 {
+
                                     $oldvaluelength = strlen( trim( $existingvalue ) );
-                                    if ( ( $newvaluelength <= $oldvaluelength ) && ( substr( $existingvalue,
-                                                                                             0,
-                                                                                             $newvaluelength ) == trim( $value ) )
-                                    )
+
+                                    if ( ( $newvaluelength <= $oldvaluelength ) && ( substr( $existingvalue, 0, $newvaluelength ) == trim( $value ) ) )
                                     {
                                         // new value is identical but shorter-than (or equal-length to) one already in comments - skip
                                         break 2;
@@ -1981,26 +2062,28 @@ class Helper
                             elseif ( !is_array( $value ) )
                             {
                                 $newvaluelength = strlen( trim( $value ) );
+
                                 foreach ( $ThisFileInfo['comments'][$tagname] as $existingkey => $existingvalue )
                                 {
+
                                     $oldvaluelength = strlen( trim( $existingvalue ) );
-                                    if ( ( $newvaluelength > $oldvaluelength ) && ( substr( trim( $value ),
-                                                                                            0,
-                                                                                            strlen( $existingvalue ) ) == $existingvalue )
-                                    )
+
+                                    if ( ( $newvaluelength > $oldvaluelength ) && ( substr( trim( $value ), 0, strlen( $existingvalue ) ) == $existingvalue ) )
                                     {
                                         $ThisFileInfo['comments'][$tagname][$existingkey] = trim( $value );
                                         break 2;
                                     }
+
                                 }
                             }
-                            if ( is_array( $value ) || empty( $ThisFileInfo['comments'][$tagname] ) || !in_array( trim( $value ),
-                                                                                                                  $ThisFileInfo['comments'][$tagname] )
-                            )
+
+                            if ( is_array( $value ) || empty( $ThisFileInfo['comments'][$tagname] ) || !in_array( trim( $value ), $ThisFileInfo['comments'][$tagname] ) )
                             {
-                                $value                                = ( is_string( $value ) ? trim( $value ) : $value );
+                                $value = ( is_string( $value ) ? trim( $value ) : $value );
+
                                 $ThisFileInfo['comments'][$tagname][] = $value;
                             }
+
                         }
                     }
                 }
@@ -2009,12 +2092,14 @@ class Helper
             // Copy to ['comments_html']
             foreach ( $ThisFileInfo['comments'] as $field => $values )
             {
+
                 if ( $field == 'picture' )
                 {
                     // pictures can take up a lot of space, and we don't need multiple copies of them
                     // let there be a single copy in [comments][picture], and not elsewhere
                     continue;
                 }
+
                 foreach ( $values as $index => $value )
                 {
                     if ( is_array( $value ) )
@@ -2023,10 +2108,7 @@ class Helper
                     }
                     else
                     {
-                        $ThisFileInfo['comments_html'][$field][$index] = str_replace( '&#0;',
-                                                                                      '',
-                                                                                      self::MultiByteCharString2HTML( $value,
-                                                                                                                      $ThisFileInfo['encoding'] ) );
+                        $ThisFileInfo['comments_html'][$field][$index] = str_replace( '&#0;', '', self::MultiByteCharString2HTML( $value, $ThisFileInfo['encoding'] ) );
                     }
                 }
             }
@@ -2038,13 +2120,13 @@ class Helper
     /**
      * @staticvar type $cache
      *
-     * @param  type $key
-     * @param  type $begin
-     * @param  type $end
-     * @param  type $file
-     * @param  type $name
+     * @param string $key
+     * @param int    $begin
+     * @param int    $end
+     * @param string $file
+     * @param string $name
      *
-     * @return type
+     * @return mixed
      */
     public static function EmbeddedLookup( $key, $begin, $end, $file, $name )
     {
@@ -2097,9 +2179,9 @@ class Helper
     }
 
     /**
-     * @param  type $string
+     * @param string $string
      *
-     * @return type
+     * @return string
      */
     public static function trimNullByte( $string )
     {
@@ -2107,11 +2189,11 @@ class Helper
     }
 
     /**
-     * @param  type $origin
-     * @param  type $cahrToReplace
-     * @param  type $capitaliseFirstChar
+     * @param string $origin
+     * @param string $cahrToReplace
+     * @param bool   $capitaliseFirstChar
      *
-     * @return type
+     * @return string
      */
     public static function toCamelCase( $origin, $cahrToReplace = '_', $capitaliseFirstChar = false )
     {
@@ -2119,6 +2201,7 @@ class Helper
         {
             $origin = ucfirst( $origin );
         }
+
         $func = create_function( '$c', 'return strtoupper($c[1]);' );
 
         return preg_replace_callback( '/' . $cahrToReplace . '([a-z])/', $func, $origin );

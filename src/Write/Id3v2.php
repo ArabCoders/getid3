@@ -3,6 +3,7 @@
 namespace arabcoders\getid3\Write;
 
 use arabcoders\getid3\GetId3Core;
+use arabcoders\getid3\Interfaces\WriterInterface;
 use arabcoders\getid3\Lib\Helper;
 use arabcoders\getid3\Module\Tag;
 
@@ -30,7 +31,7 @@ use arabcoders\getid3\Module\Tag;
  *
  * @uses   \arabcoders\getid3\Module\Tag\Id3v2
  */
-class Id3v2
+class Id3v2 implements WriterInterface
 {
     public $filename;
     public $tag_data;

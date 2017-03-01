@@ -1,11 +1,13 @@
 <?php
-
 /**
- * GetId3() by James Heinrich <info@getid3.org>
- * available at http://getid3.sourceforge.net
- * or http://www.getid3.org
+ * This file is part of ( \arabcoders\getid3 ) project.
  *
- * Please see readme.txt for more information
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ *
+ * getID3 original code Was written by James Heinrich <info@getid3.org>.
+ * Code was converted to classes by Javier Spagnoletti <jspagnoletti@javierspagnoletti.com.ar>
+ * Code was reorganized and updated by Abdulmohsen Almansour <admin@arabcoders.org>
  */
 
 namespace arabcoders\getid3;
@@ -14,12 +16,9 @@ use arabcoders\getid3\Exception\DefaultException;
 use arabcoders\getid3\Lib\Helper;
 
 /**
- * @author  James Heinrich <info@getid3.org>
+ * Class GetId3Core
  *
- * @link    http://getid3.sourceforge.net
- * @link    http://www.getid3.org
- *
- * @version 1.9.4-20120530
+ * @package arabcoders\getid3
  */
 class GetId3Core
 {
@@ -127,8 +126,6 @@ class GetId3Core
 
     /**
      * Check whether file is larger than 2GB and thus not supported by 32-bit PHP (null: auto-detect based on PHP_INT_MAX)
-     *
-     * @var type
      */
     public $option_max_2gb_check = null;
 
@@ -151,7 +148,7 @@ class GetId3Core
     /**
      * Filepointer to file being analysed.
      *
-     * @var type
+     * @var resource
      */
     public $fp;
 
@@ -180,29 +177,29 @@ class GetId3Core
     protected $memory_limit = 0;
 
     /**
-     * @var type
+     * @var string
      */
     public $tempdir;
 
     /**
      * $TempDir = '/something/else/';  // feel free to override temp dir here if it works better for your system
      *
-     * @var type
+     * @var string
      */
     protected static $TempDir;
 
     /**
-     * @var type
+     * @var string
      */
     protected static $IncludePath;
 
     /**
-     * @var type
+     * @var string
      */
     protected static $EnvironmentIsWindows;
 
     /**
-     * @var type
+     * @var string
      */
     protected static $HelperAppsDir;
 
@@ -227,15 +224,17 @@ class GetId3Core
     const ATTACHMENTS_INLINE = true;
 
     /**
-     * public: constructor
+     * GetId3Core constructor.
      *
-     * @return bool
+     * @throws DefaultException
      */
     public function __construct()
     {
         $this->tempdir = self::getTempDir();
+
         // Check for PHP version
-        $required_php_version = '5.0.5';
+        $required_php_version = '7.0';
+
         if ( version_compare( PHP_VERSION, $required_php_version, '<' ) )
         {
             $this->addStartupError( 'getID3() requires PHP v' . $required_php_version . ' or higher - you are running v' . PHP_VERSION );
@@ -243,6 +242,7 @@ class GetId3Core
 
         // Check memory
         $this->setMemoryLimit( ini_get( 'memory_limit' ) );
+
         if ( preg_match( '#([0-9]+)M#i', $this->getMemoryLimit(), $matches ) )
         {
             // could be stored as "16M" rather than 16777216 for example
@@ -253,6 +253,7 @@ class GetId3Core
             // could be stored as "2G" rather than 2147483648 for example
             $this->setMemoryLimit( $matches[1] * 1073741824 );
         }
+
         if ( $this->getMemoryLimit() <= 0 )
         {
             // memory limits probably disabled
@@ -264,12 +265,6 @@ class GetId3Core
         elseif ( $this->getMemoryLimit() <= 12582912 )
         {
             $this->addStartupWarning( 'PHP has less than 12MB available memory and might run out if all modules are loaded. Increase memory_limit in php.ini' );
-        }
-
-        // Check safe_mode off
-        if ( preg_match( '#(1|ON)#i', ini_get( 'safe_mode' ) ) )
-        {
-            $this->warning( 'WARNING: Safe mode is on, shorten support disabled, md5data/sha1data for ogg vorbis disabled, ogg vorbos/flac tag writing disabled.' );
         }
 
         if ( intval( ini_get( 'mbstring.func_overload' ) ) > 0 )
@@ -311,42 +306,54 @@ class GetId3Core
             }
             elseif ( strpos( realpath( $helperappsdir ), ' ' ) !== false )
             {
-                $DirPieces   = explode( DIRECTORY_SEPARATOR,
-                                        realpath( $helperappsdir ) );
+
+                $DirPieces = explode( DIRECTORY_SEPARATOR, realpath( $helperappsdir ) );
+
                 $path_so_far = [];
+
                 foreach ( $DirPieces as $key => $value )
                 {
                     if ( strpos( $value, ' ' ) !== false )
                     {
                         if ( !empty( $path_so_far ) )
                         {
-                            $commandline = 'dir /x ' . escapeshellarg( implode( DIRECTORY_SEPARATOR,
-                                                                                $path_so_far ) );
+                            $commandline = 'dir /x ' . escapeshellarg( implode( DIRECTORY_SEPARATOR, $path_so_far ) );
                             $dir_listing = `$commandline`;
-                            $lines       = explode( "\n", $dir_listing );
+
+                            $lines = explode( "\n", $dir_listing );
+
                             foreach ( $lines as $line )
                             {
                                 $line = trim( $line );
-                                if ( preg_match( '#^([0-9/]{10}) +([0-9:]{4,5}( [AP]M)?) +(<DIR>|[0-9,]+) +([^ ]{0,11}) +(.+)$#',
-                                                 $line, $matches ) )
+                                if ( preg_match( '#^([0-9/]{10}) +([0-9:]{4,5}( [AP]M)?) +(<DIR>|[0-9,]+) +([^ ]{0,11}) +(.+)$#', $line, $matches ) )
                                 {
+
+                                    /** @noinspection PhpUnusedLocalVariableInspection */
                                     list( $dummy, $date, $time, $ampm, $filesize, $shortname, $filename ) = $matches;
+
+                                    /** @noinspection HtmlDeprecatedTag */
                                     if ( ( strtoupper( $filesize ) == '<DIR>' ) && ( strtolower( $filename ) == strtolower( $value ) ) )
                                     {
                                         $value = $shortname;
                                     }
+
                                 }
                             }
+
                         }
                         else
                         {
                             $this->addStartupWarning( 'self::getHelperAppsDir() must not have any spaces in it - use 8dot3 naming convention if neccesary. You can run "dir /x" from the commandline to see the correct 8.3-style names.' );
                         }
                     }
+
                     $path_so_far[] = $value;
+
                 }
+
                 $helperappsdir = implode( DIRECTORY_SEPARATOR, $path_so_far );
             }
+
             self::$HelperAppsDir = $helperappsdir . DIRECTORY_SEPARATOR;
         }
     }
@@ -357,7 +364,7 @@ class GetId3Core
     }
 
     /**
-     * @return type
+     * @return string
      */
     public function version()
     {
@@ -365,7 +372,7 @@ class GetId3Core
     }
 
     /**
-     * @return type
+     * @return int
      */
     public function fread_buffer_size()
     {
@@ -375,22 +382,25 @@ class GetId3Core
     /**
      * public: setOption
      *
-     * @param  type $optArray
+     * @param array $optArray
      *
      * @return bool
      */
     public function setOption( $optArray )
     {
+
         if ( !is_array( $optArray ) || empty( $optArray ) )
         {
             return false;
         }
+
         foreach ( $optArray as $opt => $val )
         {
             if ( false === isset( $this->$opt ) )
             {
                 continue;
             }
+
             $this->$opt = $val;
         }
 
@@ -398,7 +408,7 @@ class GetId3Core
     }
 
     /**
-     * @param  type $filename
+     * @param string $filename
      *
      * @return bool
      *
@@ -408,10 +418,12 @@ class GetId3Core
     {
         try
         {
+
             if ( $this->hasStartupError() )
             {
                 throw new DefaultException( $this->getStartupError() );
             }
+
             if ( $this->hasStartupWarning() )
             {
                 $this->warning( $this->getStartupWarning() );
@@ -419,7 +431,9 @@ class GetId3Core
 
             // init result array and set parameters
             $this->setFilename( $filename );
-            $this->info                     = [];
+
+            $this->info = [];
+
             $this->info['GETID3_VERSION']   = $this->version();
             $this->info['php_memory_limit'] = $this->getMemoryLimit();
 
@@ -430,14 +444,10 @@ class GetId3Core
             }
 
             $filename = str_replace( '/', DIRECTORY_SEPARATOR, $filename );
-            $filename = preg_replace( '#(.+)' . preg_quote( DIRECTORY_SEPARATOR ) . '{2,}#U',
-                                      '\1' . DIRECTORY_SEPARATOR,
-                                      $filename );
+            $filename = preg_replace( '#(.+)' . preg_quote( DIRECTORY_SEPARATOR ) . '{2,}#U', '\1' . DIRECTORY_SEPARATOR, $filename );
 
             // open local file
-            if ( is_readable( $filename ) && is_file( $filename ) && ( $this->setFp( fopen( $filename,
-                                                                                            'rb' ) ) )
-            )
+            if ( is_readable( $filename ) && is_file( $filename ) && ( $this->setFp( fopen( $filename, 'rb' ) ) ) )
             {
                 // great
             }
@@ -447,33 +457,35 @@ class GetId3Core
             }
 
             $this->info['filesize'] = filesize( $filename );
+
             // set redundant parameters - might be needed in some include file
-            $this->info['filename']     = basename( $filename );
-            $this->info['filepath']     = str_replace( '\\', '/',
-                                                       realpath( dirname( $filename ) ) );
+
+            $this->info['filename'] = basename( $filename );
+            $this->info['filepath'] = str_replace( '\\', '/', realpath( dirname( $filename ) ) );
+
             $this->info['filenamepath'] = $this->info['filepath'] . '/' . $this->info['filename'];
 
             // option_max_2gb_check
             if ( $this->getOptionMax2gbCheck() )
             {
+
                 // PHP (32-bit all, and 64-bit Windows) doesn't support integers larger than 2^31 (~2GB)
                 // filesize() simply returns (filesize % (pow(2, 32)), no matter the actual filesize
                 // ftell() returns 0 if seeking to the end is beyond the range of unsigned integer
+
                 $fseek = fseek( $this->getFp(), 0, SEEK_END );
-                if ( ( $fseek < 0 ) || ( ( $this->info['filesize'] != 0 ) && ( ftell( $this->getFp() ) == 0 ) ) ||
-                    ( $this->info['filesize'] < 0 ) ||
-                    ( ftell( $this->getFp() ) < 0 )
-                )
+
+                if ( ( $fseek < 0 ) || ( ( $this->info['filesize'] != 0 ) && ( ftell( $this->getFp() ) == 0 ) ) || ( $this->info['filesize'] < 0 ) || ( ftell( $this->getFp() ) < 0 ) )
                 {
+
                     $real_filesize = false;
+
                     if ( self::$EnvironmentIsWindows )
                     {
-                        $commandline = 'dir /-C "' . str_replace( '/',
-                                                                  DIRECTORY_SEPARATOR,
-                                                                  $filename ) . '"';
+                        $commandline = 'dir /-C "' . str_replace( '/', DIRECTORY_SEPARATOR, $filename ) . '"';
                         $dir_output  = `$commandline`;
-                        if ( preg_match( '#1 File\(s\)[ ]+([0-9]+) bytes#i',
-                                         $dir_output, $matches ) )
+
+                        if ( preg_match( '#1 File\(s\)[ ]+([0-9]+) bytes#i', $dir_output, $matches ) )
                         {
                             $real_filesize = (float) $matches[1];
                         }
@@ -482,15 +494,12 @@ class GetId3Core
                     {
                         $commandline = 'ls -o -g -G --time-style=long-iso ' . escapeshellarg( $filename );
                         $dir_output  = `$commandline`;
-                        if ( preg_match( '#([0-9]+) ([0-9]{4}-[0-9]{2}\-[0-9]{2} [0-9]{2}:[0-9]{2}) ' . str_replace( '#',
-                                                                                                                     '\\#',
-                                                                                                                     preg_quote( $filename ) ) . '$#',
-                                         $dir_output,
-                                         $matches ) )
+                        if ( preg_match( '#([0-9]+) ([0-9]{4}-[0-9]{2}\-[0-9]{2} [0-9]{2}:[0-9]{2}) ' . str_replace( '#', '\\#', preg_quote( $filename ) ) . '$#', $dir_output, $matches ) )
                         {
                             $real_filesize = (float) $matches[1];
                         }
                     }
+
                     if ( false === $real_filesize )
                     {
                         unset( $this->info['filesize'] );
@@ -504,9 +513,9 @@ class GetId3Core
                         throw new DefaultException( 'PHP seems to think the file is larger than ' . round( PHP_INT_MAX / 1073741824 ) . 'GB, but filesystem reports it as ' . number_format( $real_filesize,
                                                                                                                                                                                              3 ) . 'GB, please report to info@getid3.org' );
                     }
+
                     $this->info['filesize'] = $real_filesize;
-                    $this->error( 'File is larger than ' . round( PHP_INT_MAX / 1073741824 ) . 'GB (filesystem reports it as ' . number_format( $real_filesize,
-                                                                                                                                                3 ) . 'GB) and is not properly supported by PHP.' );
+                    $this->error( 'File is larger than ' . round( PHP_INT_MAX / 1073741824 ) . 'GB (filesystem reports it as ' . number_format( $real_filesize, 3 ) . 'GB) and is not properly supported by PHP.' );
                 }
             }
 
@@ -535,16 +544,17 @@ class GetId3Core
     /**
      * public: analyze file
      *
-     * @param  type $filename
+     * @param string $filename
      *
-     * @return type
+     * @return array
      *
-     * @throws Exception
+     * @throws DefaultException
      */
     public function analyze( $filename )
     {
         try
         {
+
             if ( !$this->openfile( $filename ) )
             {
                 return $this->info;
@@ -554,6 +564,7 @@ class GetId3Core
             foreach ( [ 'id3v2' => 'id3v2', 'id3v1' => 'id3v1', 'apetag' => 'ape', 'lyrics3' => 'lyrics3' ] as $tag_name => $tag_key )
             {
                 $option_tag = 'option_tag_' . $tag_name;
+
                 if ( $this->$option_tag )
                 {
                     try
@@ -567,18 +578,19 @@ class GetId3Core
                         throw $e;
                     }
                 }
+
             }
+
             if ( isset( $this->info['id3v2']['tag_offset_start'] ) )
             {
-                $this->info['avdataoffset'] = max( $this->info['avdataoffset'],
-                                                   $this->info['id3v2']['tag_offset_end'] );
+                $this->info['avdataoffset'] = max( $this->info['avdataoffset'], $this->info['id3v2']['tag_offset_end'] );
             }
+
             foreach ( [ 'id3v1' => 'id3v1', 'apetag' => 'ape', 'lyrics3' => 'lyrics3' ] as $tag_name => $tag_key )
             {
                 if ( isset( $this->info[$tag_key]['tag_offset_start'] ) )
                 {
-                    $this->info['avdataend'] = min( $this->info['avdataend'],
-                                                    $this->info[$tag_key]['tag_offset_start'] );
+                    $this->info['avdataend'] = min( $this->info['avdataend'], $this->info[$tag_key]['tag_offset_start'] );
                 }
             }
 
@@ -592,10 +604,7 @@ class GetId3Core
                     $this->info['id3v2']['header']       = true;
                     $this->info['id3v2']['majorversion'] = ord( $header{3} );
                     $this->info['id3v2']['minorversion'] = ord( $header{4} );
-                    $this->info['avdataoffset'] += Helper::BigEndian2Int( substr( $header,
-                                                                                  6,
-                                                                                  4 ),
-                                                                          1 ) + 10; // length of ID3v2 tag in 10-byte header doesn't include 10-byte header length
+                    $this->info['avdataoffset'] += Helper::BigEndian2Int( substr( $header, 6, 4 ), 1 ) + 10; // length of ID3v2 tag in 10-byte header doesn't include 10-byte header length
                 }
             }
 
@@ -696,6 +705,7 @@ class GetId3Core
             {
                 $class->inline_attachments = $this->option_save_attachments;
             }
+
             $class->analyze();
 
             unset( $class );
@@ -750,9 +760,9 @@ class GetId3Core
     /**
      * private: error handling
      *
-     * @param  type $message
+     * @param string $message
      *
-     * @return type
+     * @return array
      */
     private function error( $message )
     {
@@ -769,7 +779,7 @@ class GetId3Core
     /**
      * private: warning handling
      *
-     * @param  string $message
+     * @param string $message
      *
      * @return bool
      */
@@ -787,9 +797,9 @@ class GetId3Core
      */
     private function CleanUp()
     {
-
         // remove possible empty keys
         $AVpossibleEmptyKeys = [ 'dataformat', 'bits_per_sample', 'encoder_options', 'streams', 'bitrate' ];
+
         foreach ( $AVpossibleEmptyKeys as $dummy => $key )
         {
             if ( empty( $this->info['audio'][$key] ) && isset( $this->info['audio'][$key] ) )
@@ -1316,8 +1326,8 @@ class GetId3Core
     }
 
     /**
-     * @param  type $filedata
-     * @param  type $filename
+     * @param string $filedata
+     * @param string $filename
      *
      * @return string|bool
      */
@@ -1372,10 +1382,10 @@ class GetId3Core
     }
 
     /**
-     * @param  type $array
-     * @param  type $encoding
+     * @param array  $array
+     * @param string $encoding
      *
-     * @return type converts array to $encoding charset from $this->encoding
+     * @return void type converts array to $encoding charset from $this->encoding
      */
     public function CharConvert( &$array, $encoding )
     {
@@ -1569,9 +1579,9 @@ class GetId3Core
     }
 
     /**
-     * @param  type $algorithm
+     * @param string $algorithm
      *
-     * @return bool
+     * @return bool|string
      */
     public function getHashdata( $algorithm )
     {
@@ -1639,7 +1649,6 @@ class GetId3Core
                 }
                 else
                 {
-                    $commandline        = 'vorbiscomment -w -c "' . $empty . '" "' . $file . '" "' . $temp . '" 2>&1';
                     $commandline        = 'vorbiscomment -w -c ' . escapeshellarg( $empty ) . ' ' . escapeshellarg( $file ) . ' ' . escapeshellarg( $temp ) . ' 2>&1';
                     $VorbisCommentError = `$commandline`;
                 }
@@ -1934,7 +1943,7 @@ class GetId3Core
     }
 
     /**
-     * @return type
+     * @return string
      */
     public function GetId3_tempnam()
     {
@@ -2005,7 +2014,7 @@ class GetId3Core
     }
 
     /**
-     * @return type
+     * @return bool|string
      */
     public static function environmentIsWindows()
     {

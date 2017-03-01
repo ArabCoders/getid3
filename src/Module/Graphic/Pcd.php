@@ -3,6 +3,7 @@
 namespace arabcoders\getid3\Module\Graphic;
 
 use arabcoders\getid3\Handler\BaseHandler;
+use arabcoders\getid3\Interfaces\ModuleInterface;
 
 /////////////////////////////////////////////////////////////////
 /// GetId3() by James Heinrich <info@getid3.org>               //
@@ -26,7 +27,7 @@ use arabcoders\getid3\Handler\BaseHandler;
  * @link   http://getid3.sourceforge.net
  * @link   http://www.getid3.org
  */
-class Pcd extends BaseHandler
+class Pcd extends BaseHandler implements ModuleInterface
 {
     /**
      * @var int

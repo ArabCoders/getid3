@@ -4,6 +4,7 @@ namespace arabcoders\getid3\Module\Archive;
 
 use arabcoders\getid3\GetId3Core;
 use arabcoders\getid3\Lib\Helper;
+use arabcoders\getid3\Interfaces\ModuleInterface;
 
 /////////////////////////////////////////////////////////////////
 /// GetId3() by James Heinrich <info@getid3.org>               //
@@ -33,7 +34,7 @@ use arabcoders\getid3\Lib\Helper;
  * @link   http://getid3.sourceforge.net
  * @link   http://www.getid3.org
  */
-class Gzip
+class Gzip implements ModuleInterface
 {
     /**
      * Optional file list - disable for speed.

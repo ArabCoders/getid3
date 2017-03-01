@@ -3,6 +3,7 @@
 namespace arabcoders\getid3\Write;
 
 use arabcoders\getid3\GetId3Core;
+use arabcoders\getid3\Interfaces\WriterInterface;
 
 /////////////////////////////////////////////////////////////////
 /// GetId3() by James Heinrich <info@getid3.org>               //
@@ -28,7 +29,7 @@ use arabcoders\getid3\GetId3Core;
  *
  * @uses   \arabcoders\getid3\Module\Tag\Lyrics3
  */
-class Lyrics3
+class Lyrics3 implements WriterInterface
 {
     public $filename;
     public $tag_data;

@@ -12,6 +12,7 @@ namespace arabcoders\getid3\Module\Audio;
 
 use arabcoders\getid3\Handler\BaseHandler;
 use arabcoders\getid3\Lib\Helper;
+use arabcoders\getid3\Interfaces\ModuleInterface;
 
 /**
  * module for analyzing MP3 files
@@ -21,7 +22,7 @@ use arabcoders\getid3\Lib\Helper;
  * @link   http://getid3.sourceforge.net
  * @link   http://www.getid3.org
  */
-class Mp3 extends BaseHandler
+class Mp3 extends BaseHandler implements ModuleInterface
 {
     /**
      * number of frames to scan to determine if MPEG-audio sequence is valid

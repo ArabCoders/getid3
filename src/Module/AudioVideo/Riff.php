@@ -8,6 +8,7 @@ use arabcoders\getid3\Lib\Helper;
 use arabcoders\getid3\Module\Audio\Ac3;
 use arabcoders\getid3\Module\Audio\Mp3;
 use arabcoders\getid3\Module\Tag\Id3v2;
+use arabcoders\getid3\Interfaces\ModuleInterface;
 
 /////////////////////////////////////////////////////////////////
 /// GetId3() by James Heinrich <info@getid3.org>               //
@@ -41,7 +42,7 @@ use arabcoders\getid3\Module\Tag\Id3v2;
  * @uses   \arabcoders\getid3\Module\Audio\Ac3 (optional)
  * @uses   \arabcoders\getid3\Module\Audio\Dts (optional)
  */
-class Riff extends BaseHandler
+class Riff extends BaseHandler implements ModuleInterface
 {
     /**
      * @return bool

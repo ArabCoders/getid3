@@ -1,11 +1,13 @@
 <?php
-
 /**
- * GetId3() by James Heinrich <info@getid3.org>
- * available at http://getid3.sourceforge.net
- * or http://www.getid3.org
+ * This file is part of ( \arabcoders\getid3 ) project.
  *
- * Please see readme.txt for more information
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ *
+ * getID3 original code Was written by James Heinrich <info@getid3.org>.
+ * Code was converted to classes by Javier Spagnoletti <jspagnoletti@javierspagnoletti.com.ar>
+ * Code was reorganized and updated by Abdulmohsen Almansour <admin@arabcoders.org>
  */
 
 namespace arabcoders\getid3\Handler;
@@ -15,17 +17,16 @@ use arabcoders\getid3\GetId3Core;
 use arabcoders\getid3\Lib\Helper;
 
 /**
- * @author James Heinrich <info@getid3.org>
+ * Class BaseHandler
  *
- * @link   http://getid3.sourceforge.net
- * @link   http://www.getid3.org
+ * @package arabcoders\getid3\Handler
  */
 abstract class BaseHandler
 {
     /**
      * pointer
      *
-     * @var \arabcoders\getid3\GetId3Core
+     * @var GetId3Core
      */
     protected $getid3;
 
@@ -58,13 +59,13 @@ abstract class BaseHandler
     protected $data_string_length = 0;
 
     /**
-     * @var type
+     * @var string|null
      */
     private $dependency_to;
 
     /**
-     * @param \arabcoders\getid3\GetId3Core $getid3
-     * @param type                          $call_module
+     * @param GetId3Core $getid3
+     * @param string     $call_module
      */
     public function __construct( GetId3Core $getid3, $call_module = null )
     {
@@ -83,6 +84,8 @@ abstract class BaseHandler
 
     /**
      * Analyze from string instead
+     *
+     * @param string $string
      */
     public function AnalyzeString( &$string )
     {
@@ -112,7 +115,7 @@ abstract class BaseHandler
     }
 
     /**
-     * @return type
+     * @return int
      */
     protected function ftell()
     {
@@ -125,9 +128,9 @@ abstract class BaseHandler
     }
 
     /**
-     * @param  type $bytes
+     * @param  int $bytes
      *
-     * @return type
+     * @return string
      */
     protected function fread( $bytes )
     {
@@ -143,8 +146,8 @@ abstract class BaseHandler
     }
 
     /**
-     * @param  type $bytes
-     * @param  type $whence
+     * @param int $bytes
+     * @param int $whence
      *
      * @return int
      */
@@ -174,7 +177,7 @@ abstract class BaseHandler
     }
 
     /**
-     * @return type
+     * @return bool
      */
     protected function feof()
     {
@@ -187,9 +190,9 @@ abstract class BaseHandler
     }
 
     /**
-     * @param  type $module
+     * @param string $module
      *
-     * @return type
+     * @return bool
      */
     final protected function isDependencyFor( $module )
     {
@@ -219,17 +222,16 @@ abstract class BaseHandler
     }
 
     /**
-     * @param  type $ThisFileInfoIndex
-     * @param  type $filename
-     * @param  type $offset
-     * @param  type $length
+     * @param        $ThisFileInfoIndex
+     * @param string $filename
+     * @param int    $offset
+     * @param int    $length
      *
      * @return bool
      *
-     * @throws Exception
+     * @throws DefaultException
      */
-    public function saveAttachment( &$ThisFileInfoIndex, $filename, $offset,
-                                    $length )
+    public function saveAttachment( &$ThisFileInfoIndex, $filename, $offset, $length )
     {
         try
         {
@@ -261,14 +263,14 @@ abstract class BaseHandler
                 // assume directory path is given
 
                 // set up destination path
-                $dir = rtrim( str_replace( [ '/', '\\' ], DIRECTORY_SEPARATOR,
-                                           $this->getGetId3()->getOptionSaveAttachments() ),
-                              DIRECTORY_SEPARATOR );
+                $dir = rtrim( str_replace( [ '/', '\\' ], DIRECTORY_SEPARATOR, $this->getGetId3()->getOptionSaveAttachments() ), DIRECTORY_SEPARATOR );
+
                 if ( !is_dir( $dir ) || !is_writable( $dir ) )
                 {
                     // check supplied directory
                     throw new DefaultException( 'supplied path (' . $dir . ') does not exist, or is not writable' );
                 }
+
                 $dest = $dir . DIRECTORY_SEPARATOR . $filename;
 
                 // create dest file
@@ -281,26 +283,28 @@ abstract class BaseHandler
                 $this->fseek( $offset );
                 $buffersize = ( $this->getDataStringFlag() ? $length : $this->getGetId3()->fread_buffer_size() );
                 $bytesleft  = $length;
+
                 while ( $bytesleft > 0 )
                 {
-                    if ( false === ( $buffer = $this->fread( min( $buffersize, $bytesleft ) ) ) || false === ( $byteswritten = fwrite( $fp_dest,
-                                                                                                                                       $buffer ) )
-                    )
+                    if ( false === ( $buffer = $this->fread( min( $buffersize, $bytesleft ) ) ) || false === ( $byteswritten = fwrite( $fp_dest, $buffer ) ) )
                     {
                         fclose( $fp_dest );
                         unlink( $dest );
                         throw new DefaultException( false === $buffer ? 'not enough data to read' : 'failed to write to destination file, may be not enough disk space' );
                     }
+
                     $bytesleft -= $byteswritten;
                 }
 
                 fclose( $fp_dest );
+
                 $ThisFileInfoIndex = $dest;
             }
         }
         catch ( DefaultException $e )
         {
             unset( $ThisFileInfoIndex ); // do not set any in case of error
+
             $this->warning( 'Failed to extract attachment ' . $filename . ': ' . $e->getMessage() );
 
             return false;

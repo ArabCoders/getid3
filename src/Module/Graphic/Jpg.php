@@ -6,6 +6,7 @@ use arabcoders\getid3\GetId3Core;
 use arabcoders\getid3\Handler\BaseHandler;
 use arabcoders\getid3\Lib\Helper;
 use arabcoders\getid3\Module\Tag\Xmp;
+use arabcoders\getid3\Interfaces\ModuleInterface;
 
 /////////////////////////////////////////////////////////////////
 /// GetId3() by James Heinrich <info@getid3.org>               //
@@ -33,7 +34,7 @@ use arabcoders\getid3\Module\Tag\Xmp;
  * @uses   \arabcoders\getid3\Module\Tag\Xmp (optional)
  * @uses   ext-exif (optional)
  */
-class Jpg extends BaseHandler
+class Jpg extends BaseHandler implements ModuleInterface
 {
     /**
      * @return bool

@@ -3,6 +3,7 @@
 namespace arabcoders\getid3\Write;
 
 use arabcoders\getid3\GetId3Core;
+use arabcoders\getid3\Interfaces\WriterInterface;
 use arabcoders\getid3\Lib\Helper;
 use arabcoders\getid3\Module\Tag;
 
@@ -28,9 +29,9 @@ use arabcoders\getid3\Module\Tag;
  * @link   http://getid3.sourceforge.net
  * @link   http://www.getid3.org
  *
- * @uses   GetId3\Module\Tag\Id3v1
+ * @uses   \arabcoders\getid3\Module\Tag\Id3v1
  */
-class Id3v1
+class Id3v1 implements WriterInterface
 {
     public $filename;
     public $filesize;

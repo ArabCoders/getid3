@@ -3,6 +3,7 @@
 namespace arabcoders\getid3\Write;
 
 use arabcoders\getid3\GetId3Core;
+use arabcoders\getid3\Interfaces\WriterInterface;
 
 /////////////////////////////////////////////////////////////////
 /// GetId3() by James Heinrich <info@getid3.org>               //
@@ -28,7 +29,7 @@ use arabcoders\getid3\GetId3Core;
  *
  * @uses   helperapps/vorbiscomment.exe
  */
-class Vorbiscomment
+class Vorbiscomment implements WriterInterface
 {
     public $filename;
     public $tag_data;
