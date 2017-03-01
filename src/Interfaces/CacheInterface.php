@@ -8,10 +8,17 @@
  * file that was distributed with this source code.
  */
 
-namespace arabcoders\getid3\Extension\Cache\Interfaces;
+namespace arabcoders\getid3\Interfaces;
 
 interface CacheInterface
 {
-    public function analyze( string $filename );
+    /**
+     * Analyze File and return data.
+     *
+     * @param string $filename
+     *
+     * @return array
+     */
+    public function analyze( string $filename ) : array;
 }
 
